@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر أثر ✨ | تسجيل ودخول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --main-color: #d4a373; --dark-color: #1a1a1a; --bg-color: #f4f1ea; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; }
+        
+        /* واجهة الدخول والتسجيل */
+        #auth-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--dark-color); }
+        .auth-box { background: white; padding: 30px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .auth-box h2 { color: var(--dark-color); margin-bottom: 20px; }
+        .auth-box input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: 'Cairo'; }
+        .btn-auth { background: var(--main-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .toggle-link { margin-top: 15px; font-size: 13px; color: #666; cursor: pointer; text-decoration: underline; }
+
+        /* المتجر الرئيسي */
+        #main-store { display: none; }
+        header { background: var(--dark-color); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+
+        /* الأدمن */
+        .admin-panel { background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed var(--main-color); margin-bottom: 25px; display: none; }
+        .admin-panel input { margin-bottom: 10px; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        
+        /* كروت المنتجات */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .product-card img { width: 100%; border-radius: 10px; height: 180px; object-fit: cover; background: #eee; }
+        .price-tag { color: var(--main-color); font-weight: bold; margin: 10px 0; }
+
+        .admin-btns { margin-top: 10px; display: flex; gap: 5px; justify-content: center; }
+        .btn-edit { background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .btn-del { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+
+        /* السلة */
+        .cart-box { background: white; margin-top: 30px; padding: 20px; border-radius: 15px; border: 1px solid #ddd; }
+        .checkout-btn { background: #25d366; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 15px; font-family: 'Cairo'; }
+    </style>
+</head>
+<body>
+
+<div id="auth-screen">
+    <div id="login-form" class="auth-box">
+        <h2>متجر أثر ✨</h2>
+        <input type="text" id="user-in" placeholder="اسم المستخدم">
+        <input type="password" id="pass-in" placeholder="كلمة المرور">
+        <button class="btn-auth" onclick="login()">دخول</button>
+        <div class="toggle-link" onclick="toggleAuth(true)">ليس لديك حساب؟ إنشاء حساب جديد</div>
+        <p style="font-size: 11px; color: #999; margin-top: 10px;">أدمن: admin / 123</p>
+    </div>
+
+    <div id="reg-form" class="auth-box" style="display:none;">
+        <h2>حساب جديد ✨</h2>
+        <input type="text" id="user-reg" placeholder="اسم مستخدم جديد">
+        <input type="password" id="pass-reg" placeholder="كلمة المرور">
+        <input type="tel" id="phone-reg" placeholder="رقم الجوال">
+        <button class="btn-auth" onclick="register()">تسجيل الحساب</button>
+        <div class="toggle-link" onclick="toggleAuth(false)">لديك حساب؟ سجل دخولك الآن</div>
+    </div>
+</div>
+
+<div id="main-store">
+    <header>
+        <div style="font-weight: bold; font-size: 22px;">أثـر ✨</div>
+        <div id="status-tag" style="font-size: 12px; background: #444; padding: 4px 10px; border-radius: 15px; color: white;"></div>
+    </header>
+
+    <div class="container">
+        <div id="admin-panel" class="admin-panel">
+            <h3 style="margin-top:0">🛠️ إضافة كوب جديد</h3>
+            <input type="text" id="n-name" placeholder="اسم الكوب">
+            <input type="number" id="n-price" placeholder="السعر بالدرهم">
+            <input type="text" id="n-link" placeholder="رابط الصورة المباشر">
+            <button class="btn-auth" style="background: #333;" onclick="addProd()">حفظ الكوب</button>
+        </div>
+
+        <div class="products-grid" id="list"></div>
+
+        <div class="cart-box">
+            <h3>🛒 طلبك الحالي</h3>
+            <div id="items-in-cart">السلة فارغة..</div>
+            <div style="font-size: 1.3rem; font-weight: bold; margin: 15px 0;">الإجمالي: <span id="total">0</span> درهم</div>
+            
+            <button class="checkout-btn" onclick="sendToWA()">تأكيد الطلب عبر الواتساب 💬</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const MY_NUMBER = "971547951518"; // رقمك هنا
+    let isAdmin = false;
+    let currentUser = "";
+    let currentPhone = "";
+
+    // جلب المنتجات
+    let prods = JSON.parse(localStorage.getItem('ath_prods_links')) || [
+        { id: 1, name: "كوب أثر", price: 45, img: "https://via.placeholder.com/200" }
+    ];
+
+    // --- وظائف الحسابات ---
+    function toggleAuth(showReg) {
+        document.getElementById('login-form').style.display = showReg ? 'none' : 'block';
+        document.getElementById('reg-form').style.display = showReg ? 'block' : 'none';
+    }
+
+    function register() {
+        const u = document.getElementById('user-reg').value;
+        const p = document.getElementById('pass-reg').value;
+        const ph = document.getElementById('phone-reg').value;
+        if(!u || !p || !ph) return alert("أكمل جميع البيانات");
+
+        let users = JSON.parse(localStorage.getItem('ath_users')) || [];
+        users.push({u, p, ph});
+        localStorage.setItem('ath_users', JSON.stringify(users));
+        
+        alert("تم إنشاء حسابك! سجل دخولك الآن.");
+        toggleAuth(false);
+    }
+
+    function login() {
+        const u = document.getElementById('user-in').value;
+        const p = document.getElementById('pass-in').value;
+
+        if(u === "admin" && p === "123") {
+            isAdmin = true;
+            currentUser = "الأدمن";
+            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('status-tag').innerText = "وضع الأدمن";
+        } else {
+            let users = JSON.parse(localStorage.getItem('ath_users')) || [];
+            let found = users.find(x => x.u === u && x.p === p);
+            if(!found) return alert("اسم المستخدم أو كلمة المرور خطأ!");
+            
+            currentUser = found.u;
+            currentPhone = found.ph;
+            document.getElementById('status-tag').innerText = `مرحباً، ${currentUser}`;
+        }
+
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-store').style.display = 'block';
+        render();
+    }
+
+    // --- وظائف المتجر ---
+    function render() {
+        const grid = document.getElementById('list');
+        grid.innerHTML = prods.map(p => `
+            <div class="product-card">
+                <img src="${p.img}">
+                <h4>${p.name}</h4>
+                <div class="price-tag">${p.price} درهم</div>
+                <button class="btn-auth" style="padding:6px; font-size:14px;" onclick="buy(${p.id})">أضف للسلة +</button>
+                ${isAdmin ? `
+                    <div class="admin-btns">
+                        <button class="btn-edit" onclick="edit(${p.id})">تعديل</button>
+                        <button class="btn-del" onclick="del(${p.id})">حذف</button>
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+    }
+
+    function addProd() {
+        const n = document.getElementById('n-name').value;
+        const pr = document.getElementById('n-price').value;
+        const link = document.getElementById('n-link').value;
+        if(!n || !pr || !link) return alert("أكمل جميع الخانات!");
+        prods.push({ id: Date.now(), name: n, price: parseInt(pr), img: link });
+        save();
+        document.getElementById('n-name').value = "";
+        document.getElementById('n-price').value = "";
+        document.getElementById('n-link').value = "";
+    }
+
+    function edit(id) {
+        const p = prods.find(x => x.id === id);
+        p.name = prompt("الاسم الجديد:", p.name) || p.name;
+        p.price = parseInt(prompt("السعر الجديد:", p.price)) || p.price;
+        p.img = prompt("رابط الصورة الجديد:", p.img) || p.img;
+        save();
+    }
+
+    function del(id) { if(confirm("حذف؟")) { prods = prods.filter(p => p.id !== id); save(); } }
+
+    function save() {
+        localStorage.setItem('ath_prods_links', JSON.stringify(prods));
+        render();
+    }
+
+    let cart = [];
+    function buy(id) {
+        cart.push(prods.find(p => p.id === id));
+        document.getElementById('items-in-cart').innerHTML = cart.map(i => `<div>• ${i.name}</div>`).join('');
+        document.getElementById('total').innerText = cart.reduce((s, i) => s + i.price, 0);
+    }
+
+    function sendToWA() {
+        const total = document.getElementById('total').innerText;
+        if(cart.length === 0) return alert("السلة فارغة!");
+
+        const types = cart.map(i => i.name).join(' ، ');
+        
+        // استخدام بيانات العميل المسجلة
+        const msg = `*طلب جديد من متجر أثر* ✨%0A%0A` +
+                    `*نوع الطلب:* ${types}%0A` +
+                    `*الاسم:* ${currentUser}%0A` +
+                    `*الرقم:* ${currentPhone || "غير مسجل"}%0A` +
+                    `*السعر الإجمالي:* ${total} درهم`;
+
+        window.open(`https://wa.me/${MY_NUMBER}?text=${msg}`, '_blank');
+    }
+</script>
+</body>
+</html>
