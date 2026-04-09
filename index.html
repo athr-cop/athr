@@ -8,323 +8,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --gold: #D4AF37;
-            --gold-dark: #B8942F;
-            --dark-gold: #8B6914;
-            --black: #1A1A1A;
-            --cream: #F8F4E6;
-            --white: #FFFFFF;
-            --shadow: 0 20px 40px rgba(0,0,0,0.15);
-            --shadow-hover: 0 25px 50px rgba(212,175,55,0.3);
+            --gold: #D4AF37; --gold-dark: #B8942F; --black: #1A1A1A;
+            --cream: #F8F4E6; --white: #FFFFFF; --shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            background: linear-gradient(135deg, var(--cream) 0%, #EDE4D4 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Cairo', sans-serif; background: var(--cream); min-height: 100vh; }
+        
+        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 50%, #fdfcf7 0%, #ede4d4 100%); }
+        .loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; backdrop-filter: blur(5px); }
+        .spinner { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 60px; height: 60px; border: 4px solid var(--gold); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
 
-        /* Animated Background */
-        .bg-animation {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(212,175,55,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(212,175,55,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(212,175,55,0.05) 0%, transparent 50%);
-            z-index: -1; animation: float 20s ease-in-out infinite;
-        }
-        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(1deg); } }
+        #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-box { background: white; padding: 2.5rem; border-radius: 25px; width: 100%; max-width: 400px; box-shadow: var(--shadow); text-align: center; border: 1px solid #eee; }
+        .auth-title { font-size: 2.2rem; margin-bottom: 1.5rem; color: var(--black); font-weight: 900; }
+        .input-group { position: relative; margin-bottom: 1.2rem; }
+        .input-group input { width: 100%; padding: 0.9rem 2.8rem 0.9rem 1rem; border: 2px solid #eee; border-radius: 12px; outline: none; transition: 0.3s; font-family: 'Cairo'; }
+        .input-group input:focus { border-color: var(--gold); }
+        .input-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--gold); }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: white; border: none; padding: 1rem; width: 100%; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 1.1rem; transition: 0.3s; }
+        .toggle-link { margin-top: 1rem; color: #666; cursor: pointer; font-size: 0.9rem; }
 
-        /* Header */
-        header {
-            background: linear-gradient(135deg, var(--black) 0%, #2D2D2D 100%);
-            color: var(--white);
-            padding: 1rem 2rem;
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
-        }
-        .header-content {
-            max-width: 1200px; margin: 0 auto;
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 1rem;
-        }
-        .logo {
-            font-family: 'Tajawal', sans-serif;
-            font-size: 2.2rem; font-weight: 900;
-            background: linear-gradient(45deg, var(--gold), #FFD700);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .status-tag {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            padding: 0.5rem 1.2rem; border-radius: 50px;
-            font-size: 0.9rem; font-weight: 600;
-            box-shadow: 0 5px 15px rgba(212,175,55,0.4);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { box-shadow: 0 5px 15px rgba(212,175,55,0.4); } 50% { box-shadow: 0 5px 25px rgba(212,175,55,0.6); } }
-
-        /* Container */
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
-
-        /* Auth Screen */
-        #auth-screen {
-            min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, var(--black) 0%, #2D2D2D 50%, var(--cream) 100%);
-            position: relative; overflow: hidden;
-        }
-        .auth-box {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            padding: 3rem 2.5rem;
-            border-radius: 25px;
-            width: 100%; max-width: 420px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.2);
-            position: relative; z-index: 2;
-        }
-        .auth-box::before {
-            content: '';
-            position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(45deg, var(--gold), var(--gold-dark), var(--gold), #FFD700);
-            border-radius: 27px; z-index: -1;
-            animation: borderRotate 3s linear infinite;
-        }
-        @keyframes borderRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .auth-title {
-            font-size: 2.5rem; font-weight: 900; margin-bottom: 1.5rem;
-            background: linear-gradient(45deg, var(--black), var(--gold-dark));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .input-group {
-            position: relative; margin-bottom: 1.5rem;
-        }
-        .input-group input {
-            width: 100%; padding: 1rem 1.2rem 1rem 3rem;
-            border: 2px solid #E5E5E5; border-radius: 15px;
-            font-size: 1rem; font-family: 'Cairo';
-            background: rgba(255,255,255,0.8);
-            transition: all 0.3s ease;
-        }
-        .input-group input:focus {
-            outline: none; border-color: var(--gold);
-            box-shadow: 0 0 0 4px rgba(212,175,55,0.1);
-            transform: translateY(-2px);
-        }
-        .input-icon {
-            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
-            color: #888; font-size: 1.1rem;
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: var(--black); border: none;
-            padding: 1.2rem 2rem; width: 100%;
-            border-radius: 15px; cursor: pointer;
-            font-weight: 700; font-size: 1.1rem;
-            font-family: 'Cairo'; letter-spacing: 1px;
-            transition: all 0.3s ease; position: relative; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(212,175,55,0.4);
-        }
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(212,175,55,0.6);
-        }
-        .btn-gold:active { transform: translateY(-1px); }
-        .toggle-link {
-            margin-top: 1.5rem; font-size: 0.95rem;
-            color: var(--gold-dark); cursor: pointer;
-            font-weight: 600; transition: color 0.3s ease;
-        }
-        .toggle-link:hover { color: var(--gold); }
-
-        /* Admin Panel */
-        .admin-panel {
-            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,244,230,0.9));
-            backdrop-filter: blur(15px);
-            padding: 2.5rem; border-radius: 20px;
-            border: 2px solid rgba(212,175,55,0.2);
-            margin-bottom: 3rem; box-shadow: var(--shadow);
-            display: none;
-        }
-        .admin-title {
-            font-size: 1.8rem; font-weight: 700; margin-bottom: 2rem;
-            background: linear-gradient(45deg, var(--gold), var(--black));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        /* Products Grid */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2.5rem; margin-bottom: 3rem;
-        }
-        .product-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(15px);
-            border-radius: 25px; padding: 2rem 1.5rem;
-            text-align: center; box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.3);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; overflow: hidden;
-        }
-        .product-card::before {
-            content: ''; position: absolute; top: 0; left: -100%;
-            width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.1), transparent);
-            transition: left 0.5s;
-        }
-        .product-card:hover::before { left: 100%; }
-        .product-card:hover {
-            transform: translateY(-15px) scale(1.02);
-            box-shadow: var(--shadow-hover);
-        }
-        .product-img {
-            width: 100%; height: 220px; object-fit: cover;
-            border-radius: 20px; margin-bottom: 1.5rem;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            transition: transform 0.4s ease;
-        }
-        .product-card:hover .product-img { transform: scale(1.05); }
-        .product-name {
-            font-size: 1.4rem; font-weight: 700; margin-bottom: 0.8rem;
-            color: var(--black);
-        }
-        .price-tag {
-            font-size: 1.8rem; font-weight: 900; margin: 1rem 0 1.5rem;
-            background: linear-gradient(45deg, var(--gold), var(--gold-dark));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .btn-add {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: var(--black); border: none;
-            padding: 1rem 2rem; border-radius: 50px;
-            font-weight: 700; font-size: 1rem;
-            cursor: pointer; transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(212,175,55,0.4);
-            width: 100%;
-        }
-        .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(212,175,55,0.6);
-        }
-
-        /* Admin Buttons */
-        .admin-btns {
-            margin-top: 1rem; display: flex; gap: 0.8rem;
-            justify-content: center; flex-wrap: wrap;
-        }
-        .btn-edit { 
-            background: linear-gradient(135deg, #4A90E2, #357ABD);
-            color: white; padding: 0.6rem 1.2rem;
-            border: none; border-radius: 25px; cursor: pointer;
-            font-size: 0.85rem; font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-del { 
-            background: linear-gradient(135deg, #E74C3C, #C0392B);
-            color: white; padding: 0.6rem 1.2rem;
-            border: none; border-radius: 25px; cursor: pointer;
-            font-size: 0.85rem; font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-edit:hover, .btn-del:hover { transform: translateY(-2px); scale: 1.05; }
-
-        /* Cart */
-        .cart-box {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,244,230,0.9));
-            backdrop-filter: blur(20px);
-            padding: 2.5rem; border-radius: 25px;
-            border: 1px solid rgba(212,175,55,0.2);
-            box-shadow: var(--shadow);
-        }
-        .cart-title {
-            font-size: 2rem; font-weight: 700; margin-bottom: 2rem;
-            background: linear-gradient(45deg, var(--gold), var(--black));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .cart-items { 
-            min-height: 100px; padding: 1.5rem;
-            background: rgba(212,175,55,0.05);
-            border-radius: 15px; margin-bottom: 2rem;
-            border-right: 4px solid var(--gold);
-        }
-        .total-display {
-            font-size: 2.2rem; font-weight: 900; margin: 2rem 0;
-            text-align: center; padding: 1.5rem;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            box-shadow: 0 10px 30px rgba(212,175,55,0.2);
-        }
-        .checkout-btn {
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            color: white; border: none;
-            padding: 1.5rem 3rem; width: 100%;
-            border-radius: 50px; font-weight: 700; font-size: 1.3rem;
-            cursor: pointer; transition: all 0.3s ease;
-            box-shadow: 0 15px 40px rgba(37,211,102,0.4);
-            position: relative; overflow: hidden;
-        }
-        .checkout-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 50px rgba(37,211,102,0.6);
-        }
-
-        /* Loading & Alerts */
-        .loading {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.8);
-            z-index: 999; backdrop-filter: blur(5px);
-        }
-        .spinner {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            width: 60px; height: 60px;
-            border: 4px solid rgba(212,175,55,0.3);
-            border-top: 4px solid var(--gold);
-            border-radius: 50%; animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: translate(-50%,-50%) rotate(0deg); } 100% { transform: translate(-50%,-50%) rotate(360deg); } }
-
-        .alert {
-            padding: 1.2rem 2rem; margin: 1rem 0;
-            border-radius: 15px; font-weight: 600; font-size: 1rem;
-            animation: slideIn 0.4s ease;
-        }
-        .alert-success {
-            background: linear-gradient(135deg, #D4EDDA, #C3E6CB);
-            color: #155724; border: 1px solid #C3E6CB;
-        }
-        .alert-error {
-            background: linear-gradient(135deg, #F8D7DA, #F5C6CB);
-            color: #721C24; border: 1px solid #F5C6CB;
-        }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .products-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
-            .container { padding: 0 1.5rem; margin: 1.5rem auto; }
-            .logo { font-size: 1.8rem; }
-            .auth-box { margin: 1rem; padding: 2.5rem 2rem; }
-        }
-        @media (max-width: 480px) {
-            .products-grid { grid-template-columns: 1fr; }
-            header { padding: 1rem; }
-            .header-content { flex-direction: column; gap: 1rem; text-align: center; }
-        }
+        header { background: var(--black); color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .product-card { background: white; border-radius: 20px; padding: 1.5rem; text-align: center; box-shadow: var(--shadow); transition: 0.3s; border: 1px solid #f0f0f0; }
+        .product-card:hover { transform: translateY(-10px); }
+        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 1rem; }
+        
+        .cart-box, .admin-panel { background: white; padding: 2rem; border-radius: 20px; box-shadow: var(--shadow); margin-top: 2rem; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .remove-btn { color: #ff4d4d; cursor: pointer; background: none; border: none; font-size: 1.1rem; transition: 0.2s; }
+        .remove-btn:hover { transform: scale(1.2); }
+        
+        .checkout-btn { background: #25D366; color: white; border: none; padding: 1.2rem; width: 100%; border-radius: 50px; font-size: 1.2rem; font-weight: 700; cursor: pointer; }
+        .alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 1rem 2rem; border-radius: 10px; z-index: 1000; animation: slideDown 0.5s; box-shadow: var(--shadow); }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
-
-    <div id="loading" class="loading">
-        <div class="spinner"></div>
-    </div>
+    <div id="loading" class="loading"><div class="spinner"></div></div>
 
     <div id="auth-screen">
         <div id="login-form" class="auth-box">
@@ -334,3 +61,201 @@
                 <input type="text" id="user-in" placeholder="اسم المستخدم">
             </div>
             <div class="input-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="pass-in" placeholder="كلمة المرور">
+            </div>
+            <button class="btn-gold" onclick="login()"><i class="fas fa-sign-in-alt"></i> دخول</button>
+            <div class="toggle-link" onclick="toggleAuth(true)">ليس لديك حساب؟ إنشاء حساب</div>
+        </div>
+
+        <div id="reg-form" class="auth-box" style="display:none;">
+            <h2 class="auth-title">حساب جديد ✨</h2>
+            <div class="input-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="user-reg" placeholder="اسم المستخدم">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="pass-reg" placeholder="كلمة المرور">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-phone input-icon"></i>
+                <input type="tel" id="phone-reg" placeholder="رقم الجوال 05XXXXXXXX">
+            </div>
+            <button class="btn-gold" onclick="register()">إنشاء الحساب</button>
+            <div class="toggle-link" onclick="toggleAuth(false)">لديك حساب؟ سجل دخولك</div>
+        </div>
+    </div>
+
+    <div id="main-store" style="display:none;">
+        <header>
+            <div class="header-content">
+                <h1>الحريري ✨</h1>
+                <div id="status-tag" style="background: var(--gold); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; color:black; font-weight:bold;"></div>
+                <button onclick="location.reload()" style="background:none; border:none; color:white; cursor:pointer;"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div id="admin-panel" class="admin-panel" style="display:none; margin-bottom: 2rem; border: 2px dashed var(--gold);">
+                <h3 style="margin-bottom:1rem; color:var(--gold-dark)"><i class="fas fa-tools"></i> لوحة التحكم (أدمن)</h3>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+                    <input type="text" id="p-name" placeholder="اسم الكوب" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
+                    <input type="number" id="p-price" placeholder="السعر" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
+                    <input type="text" id="p-img" placeholder="رابط الصورة" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
+                    <button class="btn-gold" onclick="addProduct()">إضافة للمتجر</button>
+                </div>
+            </div>
+
+            <div id="products-list" class="products-grid"></div>
+
+            <div class="cart-box">
+                <h3 style="border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom:1rem;"><i class="fas fa-shopping-basket"></i> حقيبة التسوق</h3>
+                <div id="cart-items">الحقيبة فارغة...</div>
+                <div style="font-size: 1.8rem; font-weight: 900; text-align: center; margin: 1.5rem 0;">الإجمالي: <span id="total-price" style="color:var(--gold-dark)">0</span> ر.س</div>
+                <button class="checkout-btn" onclick="sendWhatsApp()"><i class="fab fa-whatsapp"></i> إرسال الطلب عبر واتساب</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MY_NUMBER = "971547951518";
+        let isAdmin = false;
+        let currentUser = "";
+        let currentPhone = "";
+        let cart = [];
+        let prods = JSON.parse(localStorage.getItem('hariri_prods')) || [
+            { id: 1, name: "كوب حريري ذهبي", price: 65, img: "https://images.unsplash.com/photo-1570784332177-fdd73efa821f?w=300&h=300&fit=crop" },
+            { id: 2, name: "كوب حريري كلاسيك", price: 55, img: "https://images.unsplash.com/photo-1611593731754-f3d5f5406a94?w=300&h=300&fit=crop" }
+        ];
+
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash + str.charCodeAt(i)) & 0xFFFFFFFF;
+            return hash.toString(16);
+        }
+
+        function toggleAuth(showReg) {
+            document.getElementById('login-form').style.display = showReg ? 'none' : 'block';
+            document.getElementById('reg-form').style.display = showReg ? 'block' : 'none';
+        }
+
+        function register() {
+            const u = document.getElementById('user-reg').value.trim();
+            const p = document.getElementById('pass-reg').value;
+            const ph = document.getElementById('phone-reg').value.replace(/\D/g, '');
+            if(!u || !p || !ph) return showAlert("❌ يرجى تعبئة كافة الحقول", "error");
+            let users = JSON.parse(localStorage.getItem('hariri_users')) || [];
+            if(users.find(x => x.u === u)) return showAlert("❌ هذا الاسم مسجل مسبقاً", "error");
+            users.push({u, p: simpleHash(p), ph});
+            localStorage.setItem('hariri_users', JSON.stringify(users));
+            showAlert("✅ تم إنشاء الحساب بنجاح!", "success");
+            toggleAuth(false);
+        }
+
+        function login() {
+            const u = document.getElementById('user-in').value.trim();
+            const p = simpleHash(document.getElementById('pass-in').value);
+            showLoading(true);
+            setTimeout(() => {
+                if(u === "admin" && p === simpleHash("123")) {
+                    isAdmin = true; currentUser = "المدير";
+                    document.getElementById('admin-panel').style.display = 'block';
+                } else {
+                    let users = JSON.parse(localStorage.getItem('hariri_users')) || [];
+                    let found = users.find(x => x.u === u && x.p === p);
+                    if(!found) { showLoading(false); return showAlert("❌ اسم المستخدم أو كلمة السر خطأ", "error"); }
+                    currentUser = found.u; currentPhone = found.ph;
+                }
+                document.getElementById('status-tag').innerText = `مرحباً: ${currentUser}`;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-store').style.display = 'block';
+                render();
+                showLoading(false);
+            }, 800);
+        }
+
+        function render() {
+            const list = document.getElementById('products-list');
+            list.innerHTML = prods.map(p => `
+                <div class="product-card">
+                    <img src="${p.img}" class="product-img">
+                    <h3>${p.name}</h3>
+                    <div style="font-size:1.4rem; color:var(--gold-dark); font-weight:900; margin:10px 0;">${p.price} ر.س</div>
+                    <button class="btn-gold" onclick="addToCart(${p.id})">أضف للحقيبة</button>
+                    ${isAdmin ? `<button onclick="deleteProd(${p.id})" style="margin-top:8px; background:#ff4d4d; color:white; border:none; padding:8px; border-radius:8px; width:100%; cursor:pointer;">حذف من المتجر</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const item = prods.find(p => p.id === id);
+            cart.push({...item, cartId: Date.now() + Math.random()}); // معرف فريد للسلة
+            updateCart();
+            showAlert(`✅ تمت إضافة ${item.name} للحقيبة`, "success");
+        }
+
+        function removeFromCart(cartId) {
+            cart = cart.filter(item => item.cartId !== cartId);
+            updateCart();
+        }
+
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            if(cart.length === 0) { 
+                container.innerHTML = "الحقيبة فارغة..."; 
+                document.getElementById('total-price').innerText = "0";
+                return; 
+            }
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <small>${item.price} ر.س</small>
+                    </div>
+                    <button class="remove-btn" onclick="removeFromCart(${item.cartId})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            `).join('');
+            document.getElementById('total-price').innerText = cart.reduce((s, i) => s + i.price, 0);
+        }
+
+        function addProduct() {
+            const name = document.getElementById('p-name').value;
+            const price = Number(document.getElementById('p-price').value);
+            const img = document.getElementById('p-img').value || "https://via.placeholder.com/300";
+            if(!name || !price) return showAlert("⚠️ أدخل الاسم والسعر", "error");
+            prods.push({id: Date.now(), name, price, img});
+            localStorage.setItem('hariri_prods', JSON.stringify(prods));
+            render();
+            showAlert("✅ تمت إضافة المنتج للمتجر", "success");
+        }
+
+        function deleteProd(id) {
+            if(!confirm("هل تريد حذف هذا المنتج نهائياً من المتجر؟")) return;
+            prods = prods.filter(p => p.id !== id);
+            localStorage.setItem('hariri_prods', JSON.stringify(prods));
+            render();
+        }
+
+        function sendWhatsApp() {
+            if(cart.length === 0) return showAlert("⚠️ الحقيبة فارغة حالياً", "error");
+            let text = `طلب جديد من متجر الحريري ✨%0Aالعميل: ${currentUser}%0Aالجوال: ${currentPhone}%0A%0A`;
+            cart.forEach((i, idx) => text += `${idx+1}. ${i.name} - ${i.price} ر.س%0A`);
+            text += `%0A*الإجمالي النهائي: ${document.getElementById('total-price').innerText} ر.س*`;
+            window.open(`https://wa.me/${MY_NUMBER}?text=${text}`, '_blank');
+        }
+
+        function showAlert(msg, type) {
+            const a = document.createElement('div');
+            a.className = `alert alert-${type}`;
+            a.innerText = msg;
+            document.body.appendChild(a);
+            setTimeout(() => a.remove(), 3000);
+        }
+
+        function showLoading(s) { document.getElementById('loading').style.display = s ? 'block' : 'none'; }
+    </script>
+</body>
+</html>
