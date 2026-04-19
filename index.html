@@ -242,8 +242,8 @@
         function sendWhatsApp() {
             if(cart.length === 0) return showAlert("⚠️ الحقيبة فارغة حالياً", "error");
             let text = `طلب جديد من متجر الحريري ✨%0Aالعميل: ${currentUser}%0Aالجوال: ${currentPhone}%0A%0A`;
-            cart.forEach((i, idx) => text += `${idx+1}. ${i.name} - ${i.price} ر.س%0A`);
-            text += `%0A*الإجمالي النهائي: ${document.getElementById('total-price').innerText} ر.س*`;
+            cart.forEach((i, idx) => text += `${idx+1}. ${i.name} - ${i.price} AED%0A`);
+            text += `%AED*الإجمالي النهائي: ${document.getElementById('total-price').innerText} AED*`;
             window.open(`https://wa.me/${MY_NUMBER}?text=${text}`, '_blank');
         }
 
