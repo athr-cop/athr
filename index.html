@@ -112,7 +112,7 @@
             <div class="cart-box">
                 <h3 style="border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom:1rem;"><i class="fas fa-shopping-basket"></i> حقيبة التسوق</h3>
                 <div id="cart-items">الحقيبة فارغة...</div>
-                <div style="font-size: 1.8rem; font-weight: 900; text-align: center; margin: 1.5rem 0;">الإجمالي: <span id="total-price" style="color:var(--gold-dark)">0</span> ر.س</div>
+                <div style="font-size: 1.8rem; font-weight: 900; text-align: center; margin: 1.5rem 0;">الإجمالي: <span id="total-price" style="color:var(--gold-dark)">0</span> درهم</div>
                 <button class="checkout-btn" onclick="sendWhatsApp()"><i class="fab fa-whatsapp"></i> إرسال الطلب عبر واتساب</button>
             </div>
         </div>
@@ -120,6 +120,7 @@
 
     <script>
         const MY_NUMBER = "971547951518";
+        const CURRENCY = "درهم"; // العملة المستخدمة
         let isAdmin = false;
         let currentUser = "";
         let currentPhone = "";
@@ -181,7 +182,7 @@
                 <div class="product-card">
                     <img src="${p.img}" class="product-img">
                     <h3>${p.name}</h3>
-                    <div style="font-size:1.4rem; color:var(--gold-dark); font-weight:900; margin:10px 0;">${p.price} ر.س</div>
+                    <div style="font-size:1.4rem; color:var(--gold-dark); font-weight:900; margin:10px 0;">${p.price} ${CURRENCY}</div>
                     <button class="btn-gold" onclick="addToCart(${p.id})">أضف للحقيبة</button>
                     ${isAdmin ? `<button onclick="deleteProd(${p.id})" style="margin-top:8px; background:#ff4d4d; color:white; border:none; padding:8px; border-radius:8px; width:100%; cursor:pointer;">حذف من المتجر</button>` : ''}
                 </div>
@@ -190,7 +191,7 @@
 
         function addToCart(id) {
             const item = prods.find(p => p.id === id);
-            cart.push({...item, cartId: Date.now() + Math.random()}); // معرف فريد للسلة
+            cart.push({...item, cartId: Date.now() + Math.random()});
             updateCart();
             showAlert(`✅ تمت إضافة ${item.name} للحقيبة`, "success");
         }
@@ -211,7 +212,7 @@
                 <div class="cart-item">
                     <div>
                         <strong>${item.name}</strong><br>
-                        <small>${item.price} ر.س</small>
+                        <small>${item.price} ${CURRENCY}</small>
                     </div>
                     <button class="remove-btn" onclick="removeFromCart(${item.cartId})">
                         <i class="fas fa-trash-alt"></i>
@@ -242,8 +243,8 @@
         function sendWhatsApp() {
             if(cart.length === 0) return showAlert("⚠️ الحقيبة فارغة حالياً", "error");
             let text = `طلب جديد من متجر الحريري ✨%0Aالعميل: ${currentUser}%0Aالجوال: ${currentPhone}%0A%0A`;
-            cart.forEach((i, idx) => text += `${idx+1}. ${i.name} - ${i.price} AED%AED`);
-            text += `%AED*الإجمالي النهائي: ${document.getElementById('total-price').innerText} AED*`;
+            cart.forEach((i, idx) => text += `${idx+1}. ${i.name} - ${i.price} ${CURRENCY}%0A`);
+            text += `%0A*الإجمالي النهائي: ${document.getElementById('total-price').innerText} ${CURRENCY}*`;
             window.open(`https://wa.me/${MY_NUMBER}?text=${text}`, '_blank');
         }
 
